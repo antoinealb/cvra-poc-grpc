@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+message ParameterValue {
+    string name = 1;
+    oneof value {
+        int32 integer_value = 2;
+        float scalar_value = 3;
+        bool bool_value = 4;
+    }
+}
+
+message ParameterNamespaceContent {
+    string name = 1;
+    repeated ParameterValue values = 2;
+    repeated ParameterNamespaceContent children = 3;
+}
+
+message ParameterListRequest {
+    // If present, indicates the sub tree we are interested in.
+    string path = 1;
+}
+
+message ParameterListResponse {
+    repeated ParameterNamespaceContent contents = 1;
+}
+
+message GetPositionRequest {}
+
+message GetPositionResponse {
+    float x = 1;
+    float y = 2;
+    float a = 3;
+}
+
+// DebugService provides all the messages required for interactive terminal
+// debugging.
+service DebugService {
+    // Provides a value for each key request
+    rpc ListParameters(ParameterListRequest) returns (ParameterListResponse) {}
+
+    // Get the position of the robot on the playing field
+    rpc GetPosition(GetPositionRequest) returns (GetPositionResponse) {}
+}
