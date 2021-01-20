@@ -18,7 +18,11 @@ python_grpc_library(
 
 cc_binary(
     name = "server",
-    srcs = ["server.cc"],
+    srcs = [
+        "commands.cc",
+        "commands.h",
+        "server.cc",
+    ],
     deps = [
         ":debug_service_cc",
         ":parameter",
