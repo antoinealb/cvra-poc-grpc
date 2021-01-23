@@ -9,6 +9,27 @@ import os.path
 import readline
 import math
 
+def dump_parameter_tree(content, indent=0):
+    def i(width):
+        return "  " * width
+
+    print(i(indent) + content.name + ":")
+
+    for p in content.values:
+        print(i(indent + 1) + "{}: ".format(p.name), end="")
+
+        if p.HasField("integer_value"):
+            print(p.integer_value)
+        elif p.HasField("scalar_value"):
+            print("{:.4f}".format(p.scalar_value))
+        elif p.HasField("bool_value"):
+            print(p.bool_value)
+        else:
+            print("<unsupported in client>")
+
+    for c in content.children:
+        dump_parameter_tree(c, indent=indent+1)
+
 
 class DebugShell(cmd.Cmd):
     prompt = "cvra >"
@@ -43,7 +64,7 @@ class DebugShell(cmd.Cmd):
 
         try:
             res = self.stub.ListParameters(request)
-            print(res)
+            dump_parameter_tree(res.contents[0])
         except grpc.RpcError as e:
             print("{}: {}".format(e.code(), e.details()))
 
