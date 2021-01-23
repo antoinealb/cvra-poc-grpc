@@ -37,3 +37,9 @@ cc_library(
     srcs = ["parameter.c"],
     hdrs = ["parameter.h"],
 )
+
+py_binary(
+    name = "client",
+    srcs = ["client.py"],
+    deps = [":debug_service_python"],
+)

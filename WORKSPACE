@@ -11,7 +11,7 @@ http_archive(
 
 git_repository(
     name = "com_github_grpc_grpc",
-    commit = "64f04e4d2fad514c56bfd3a9145f6403c3697281",
+    commit = "4286c0de912c19fe2976a747c0a3461476fbe630",
     remote = "https://github.com/grpc/grpc.git",
 )
 
