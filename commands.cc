@@ -72,3 +72,42 @@ Status DebugServiceImpl::GetPosition(ServerContext* context, const GetPositionRe
     response->set_a(3.14);
     return Status::OK;
 }
+Status DebugServiceImpl::SetParameter(grpc::ServerContext* context,
+                                      const SetParameterRequest* request,
+                                      SetParameterResponse* response)
+{
+    parameter_t* p;
+
+    p = parameter_find(&root, request->value().name().c_str());
+
+    if (!p) {
+        return {StatusCode::NOT_FOUND, "unknown parameter"};
+    }
+
+    // Check that the type of the request is compatible with the type of the parameter
+    if (p->type == _PARAM_TYPE_SCALAR && request->value().value_case() != ParameterValue::kScalarValue) {
+        return {StatusCode::INVALID_ARGUMENT, "expected scalar"};
+    }
+    if (p->type == _PARAM_TYPE_INTEGER && request->value().value_case() != ParameterValue::kIntegerValue) {
+        return {StatusCode::INVALID_ARGUMENT, "expected integer"};
+    }
+    if (p->type == _PARAM_TYPE_BOOLEAN && request->value().value_case() != ParameterValue::kBoolValue) {
+        return {StatusCode::INVALID_ARGUMENT, "expected boolean"};
+    }
+
+    switch (p->type) {
+        case _PARAM_TYPE_SCALAR:
+            parameter_scalar_set(p, request->value().scalar_value());
+            break;
+        case _PARAM_TYPE_INTEGER:
+            parameter_integer_set(p, request->value().integer_value());
+            break;
+        case _PARAM_TYPE_BOOLEAN:
+            parameter_boolean_set(p, request->value().bool_value());
+            break;
+        default:
+            return {StatusCode::UNIMPLEMENTED, absl::StrFormat("unexpected parameter type %d", p->type)};
+    }
+
+    return Status::OK;
+}

@@ -9,6 +9,7 @@ import os.path
 import readline
 import math
 
+
 def dump_parameter_tree(content, indent=0):
     def i(width):
         return "  " * width
@@ -28,7 +29,7 @@ def dump_parameter_tree(content, indent=0):
             print("<unsupported in client>")
 
     for c in content.children:
-        dump_parameter_tree(c, indent=indent+1)
+        dump_parameter_tree(c, indent=indent + 1)
 
 
 class DebugShell(cmd.Cmd):
@@ -65,6 +66,38 @@ class DebugShell(cmd.Cmd):
         try:
             res = self.stub.ListParameters(request)
             dump_parameter_tree(res.contents[0])
+        except grpc.RpcError as e:
+            print("{}: {}".format(e.code(), e.details()))
+
+    def do_parameter_set(self, arg):
+        """
+        Sets a single parameter, specifying its type.
+        """
+        p = argparse.ArgumentParser()
+        p.add_argument("parameter")
+        p.add_argument("-i", type=int, help="Integer value to set")
+        p.add_argument("-f", type=float, help="Float value to set")
+        p.add_argument("-b", type=int, help="Bool (1 or 0)")
+
+        try:
+            args = p.parse_args(shlex.split(arg))
+        except SystemExit:
+            return
+
+        req = debug_service_pb2.SetParameterRequest()
+        req.value.name = args.parameter
+        if args.i is not None:
+            req.value.integer_value = args.i
+        elif args.f is not None:
+            req.value.scalar_value = args.f
+        elif args.b is not None:
+            req.value.bool_value = args.b
+        else:
+            print("Must specify one parameter value!")
+            return
+
+        try:
+            self.stub.SetParameter(req)
         except grpc.RpcError as e:
             print("{}: {}".format(e.code(), e.details()))
 

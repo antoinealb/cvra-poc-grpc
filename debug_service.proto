@@ -24,6 +24,13 @@ message ParameterListResponse {
     repeated ParameterNamespaceContent contents = 1;
 }
 
+message SetParameterRequest {
+    // value.name should be the full path, for example /foo/bar/baz
+    ParameterValue value = 1;
+}
+
+message SetParameterResponse {}
+
 message GetPositionRequest {}
 
 message GetPositionResponse {
@@ -37,6 +44,9 @@ message GetPositionResponse {
 service DebugService {
     // Provides a value for each key request
     rpc ListParameters(ParameterListRequest) returns (ParameterListResponse) {}
+
+    // Sets a single parameter value in the parameter tree
+    rpc SetParameter(SetParameterRequest) returns (SetParameterResponse) {}
 
     // Get the position of the robot on the playing field
     rpc GetPosition(GetPositionRequest) returns (GetPositionResponse) {}
