@@ -49,9 +49,21 @@ The main downside of this solution was the complexity that it created, as web fr
 If we want a web interface for some future need, an option would be to have an intermediate software to render web pages from data obtained via gRPC.
 That way, we could use Python to implement the web application, and the C++ code would expose a simpler interface.
 
+One particular system that is often used for RPC in robotics is obviously ROS.
+We had some failures with it in the past, but it seems the ROS team learnt some lessons and changed their approach.
+However, ROS is still very much a framework instead of a library: your code must be made in a very strict way, the `catkin` build tool must be used and everything is packaged in nodes.
+On the other hand, gRPC is a library that can be easily integrated into existing code and is not very opiniated.
+
 One last option would have been to use another RPC mechanism, such as JSON-RPC or Thrift.
 Those RPC systems do not provide any relevant capabilties compared to gRPC, and are a bit more niche.
 In addition, the team is already familar with Protobuf, the encoding mechanism of gRPC, which is already used in the robot.
+
+## Deploy considerations
+
+As nuft@ pointed out during the review of this proposal, the existing system has the nice property of not requiring any custom software on one's laptop to interface with the robot.
+Switching to a RPC client would mean that someone without a working toolchain would have no way to tweak the robot.
+In order to avoid this, the client will be installed on the robot alongside the master firmware.
+This will allow some developers to use more advanced features, while quick access can be obtained by running `ssh cvra@robot grpc_client`.
 
 ## Proof of concept 
 
